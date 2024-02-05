@@ -265,6 +265,11 @@ class RelativeOutputStability(Metric[List[float]]):
             norm_function = lambda arr: np.linalg.norm(arr, axis=(-1, -2))  # noqa
         elif num_dim == 2:
             norm_function = lambda arr: np.linalg.norm(arr, axis=-1)
+        elif num_dim == 5 and self.multi_label:
+            # We still want to norm over the last two axis, but we need to keep the label dimension
+            norm_function = lambda arr: np.linalg.norm(
+                np.linalg.norm(arr, axis=(-1, -2)), axis=-1
+            )
         else:
             raise ValueError(
                 "Relative Output Stability only supports 4D, 3D and 2D inputs (batch dimension inclusive)."
@@ -278,7 +283,16 @@ class RelativeOutputStability(Metric[List[float]]):
         denominator = h_x - h_xs
         denominator = np.linalg.norm(denominator, axis=-1)
         denominator += (denominator == 0) * self._eps_min  # prevent division by 0
-        return nominator / denominator
+
+        if self.multi_label:
+            # we need to expand the denominator to the same shape as the nominator
+            denominator = np.expand_dims(denominator, axis=-1)
+            result = nominator / denominator
+            # sum over the labels
+            result = np.sum(result, axis=-1)
+        else:
+            result = nominator / denominator
+        return result
 
     def evaluate_batch(
         self,

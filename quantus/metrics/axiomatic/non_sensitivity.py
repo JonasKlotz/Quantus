@@ -312,7 +312,7 @@ class NonSensitivity(Metric[List[float]]):
 
                 # Predict on perturbed input x.
                 x_input = model.shape_input(x_perturbed, x.shape, channel_first=True)
-                y_pred_perturbed = float(model.predict(x_input)[:, y])
+                y_pred_perturbed = model.predict(x_input)[:, y]
 
                 preds.append(y_pred_perturbed)
                 vars.append(np.var(preds))

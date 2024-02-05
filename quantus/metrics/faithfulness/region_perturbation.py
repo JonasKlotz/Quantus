@@ -302,21 +302,33 @@ class RegionPerturbation(Metric[List[float]]):
         Returns
         -------
            : list
-            The evaluation results.
+            The evaluation results. When multi_label is True, the list contains another list of scores for each label.
         """
 
         # Predict on input.
+
+        # outputs the probability of the class y
+
+        if self.multi_label:
+            results = []
+            for label_index  in y:
+                results.append(self._calculate_score(a[label_index], model, x, y))
+        else:
+            results = self._calculate_score(a, model, x, y)
+
+        return results
+
+    def _calculate_score(self, a, model, x, y):
         x_input = model.shape_input(x, x.shape, channel_first=True)
-        y_pred = float(model.predict(x_input)[:, y])
+        preds =model.predict(x_input)
+        y_pred = preds[:, y]
 
         patches = []
         x_perturbed = x.copy()
-
         # Pad input and attributions. This is needed to allow for any patch_size.
         pad_width = self.patch_size - 1
         x_pad = utils._pad_array(x, pad_width, mode="constant", padded_axes=self.a_axes)
         a_pad = utils._pad_array(a, pad_width, mode="constant", padded_axes=self.a_axes)
-
         # Create patches across whole input shape and aggregate attributions.
         att_sums = []
         axis_iterators = [
@@ -330,11 +342,11 @@ class RegionPerturbation(Metric[List[float]]):
             )
 
             # Sum attributions for patch.
+            # a_pad is the padded attributions, patch_slice is the slice of the patch
             att_sums.append(
                 a_pad[utils.expand_indices(a_pad, patch_slice, self.a_axes)].sum()
             )
             patches.append(patch_slice)
-
         if self.order == "random":
             # Order attributions randomly.
             order = np.arange(len(patches))
@@ -352,10 +364,8 @@ class RegionPerturbation(Metric[List[float]]):
             raise ValueError(
                 "Chosen order must be in ['random', 'morf', 'lerf'] but is: {self.order}."
             )
-
         # Create ordered list of patches.
         ordered_patches = [patches[p] for p in order]
-
         # Remove overlapping patches
         blocked_mask = np.zeros(x_pad.shape, dtype=bool)
         ordered_patches_no_overlap = []
@@ -374,12 +384,10 @@ class RegionPerturbation(Metric[List[float]]):
 
             if len(ordered_patches_no_overlap) >= self.regions_evaluation:
                 break
-
         # Warn
         warn.warn_iterations_exceed_patch_number(
             self.regions_evaluation, len(ordered_patches_no_overlap)
         )
-
         # Increasingly perturb the input and store the decrease in function value.
         results = [None for _ in range(len(ordered_patches_no_overlap))]
         for patch_id, patch_slice in enumerate(ordered_patches_no_overlap):
@@ -404,10 +412,11 @@ class RegionPerturbation(Metric[List[float]]):
 
             # Predict on perturbed input x and store the difference from predicting on unperturbed input.
             x_input = model.shape_input(x_perturbed, x.shape, channel_first=True)
-            y_pred_perturb = float(model.predict(x_input)[:, y])
+
+            # outputs the probability of the class y
+            y_pred_perturb = model.predict(x_input)[:, y]
 
             results[patch_id] = y_pred - y_pred_perturb
-
         return results
 
     @property

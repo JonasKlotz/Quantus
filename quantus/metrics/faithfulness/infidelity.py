@@ -309,10 +309,19 @@ class Infidelity(Metric[List[float]]):
         float
             The evaluation results.
         """
+        if self.multi_label:
+            results = []
+            for label_index in y:
+                results.append(self._calculate_score(a[label_index], model, x, y))
+        else:
+            results = self._calculate_score(a, model, x, y)
 
+        return results
+
+    def _calculate_score(self, a, model, x, y):
         # Predict on input.
         x_input = model.shape_input(x, x.shape, channel_first=True)
-        y_pred = float(model.predict(x_input)[:, y])
+        y_pred = model.predict(x_input)[:, y]
 
         results = []
 
@@ -358,14 +367,14 @@ class Infidelity(Metric[List[float]]):
                         warn.warn_perturbation_caused_no_change(
                             x=x, x_perturbed=x_input
                         )
-                        y_pred_perturb = float(model.predict(x_input)[:, y])
+                        y_pred_perturb = model.predict(x_input)[:, y]
 
                         x_diff = x - x_perturbed
                         a_diff = np.dot(
                             np.repeat(a, repeats=self.nr_channels, axis=0), x_diff
                         )
-
-                        pred_deltas[i_x][i_y] = y_pred - y_pred_perturb
+                        # todo: here we have a shape mismatch, i guess using sum is fine
+                        pred_deltas[i_x][i_y] = np.sum(y_pred - y_pred_perturb)
                         a_sums[i_x][i_y] = np.sum(a_diff)
 
                 assert callable(self.loss_func)

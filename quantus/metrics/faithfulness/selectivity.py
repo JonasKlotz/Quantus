@@ -292,19 +292,26 @@ class Selectivity(Metric[List[float]]):
            : list
             The evaluation results.
         """
+        if self.multi_label:
+            results = []
+            for label_index  in y:
+                results.append(self._calculate_score(a[label_index], model, x, y))
+        else:
+            results = self._calculate_score(a, model, x, y)
 
+        return results
+
+    def _calculate_score(self, a, model, x, y):
         # Predict on input.
         x_input = model.shape_input(x, x.shape, channel_first=True)
-        y_pred = float(model.predict(x_input)[:, y])
+        y_pred = model.predict(x_input)[:, y]
 
         patches = []
         x_perturbed = x.copy()
-
         # Pad input and attributions. This is needed to allow for any patch_size.
         pad_width = self.patch_size - 1
         x_pad = utils._pad_array(x, pad_width, mode="constant", padded_axes=self.a_axes)
         a_pad = utils._pad_array(a, pad_width, mode="constant", padded_axes=self.a_axes)
-
         # Get patch indices of sorted attributions (descending).
         att_sums = []
         axis_iterators = [
@@ -325,7 +332,6 @@ class Selectivity(Metric[List[float]]):
 
             # Create ordered list of patches.
         ordered_patches = [patches[p] for p in np.argsort(att_sums)[::-1]]
-
         # Remove overlapping patches.
         blocked_mask = np.zeros(x_pad.shape, dtype=bool)
         ordered_patches_no_overlap = []
@@ -338,7 +344,6 @@ class Selectivity(Metric[List[float]]):
             if not intersected.any():
                 ordered_patches_no_overlap.append(patch_slice)
                 blocked_mask = blocked_mask | patch_mask
-
         # Increasingly perturb the input and store the decrease in function value.
         results = np.array([None for _ in range(len(ordered_patches_no_overlap))])
         for patch_id, patch_slice in enumerate(ordered_patches_no_overlap):
@@ -362,10 +367,9 @@ class Selectivity(Metric[List[float]]):
 
             # Predict on perturbed input x and store the difference from predicting on unperturbed input.
             x_input = model.shape_input(x_perturbed, x.shape, channel_first=True)
-            y_pred_perturb = float(model.predict(x_input)[:, y])
+            y_pred_perturb = model.predict(x_input)[:, y]
 
             results[patch_id] = y_pred_perturb
-
         return results
 
     @property

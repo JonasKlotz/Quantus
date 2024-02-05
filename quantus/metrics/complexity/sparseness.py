@@ -233,8 +233,7 @@ class Sparseness(Metric[List[float]]):
             **kwargs,
         )
 
-    @staticmethod
-    def evaluate_instance(x: np.ndarray, a: np.ndarray) -> float:
+    def evaluate_instance(self, x: np.ndarray, a: np.ndarray) -> float:
         """
         Evaluate instance gets model and data for a single instance as input and returns the evaluation result.
 
@@ -250,16 +249,25 @@ class Sparseness(Metric[List[float]]):
         float
             The evaluation results.
         """
+        if self.multi_label:
+            scores = []
+            for attribution in a:
+                scores.append(self._calculate_score(attribution, x))
+            score = np.nansum(scores) # todo: Mean or sum?
+        else:
+            score = self._calculate_score(a, x)
+        return score
+
+    def _calculate_score(self, a, x):
         if len(x.shape) == 1:
             newshape = np.prod(x.shape)
         else:
             newshape = np.prod(x.shape[1:])
-
         a = np.array(np.reshape(a, newshape), dtype=np.float64)
         a += 0.0000001
         a = np.sort(a)
         score = (np.sum((2 * np.arange(1, a.shape[0] + 1) - a.shape[0] - 1) * a)) / (
-            a.shape[0] * np.sum(a)
+                a.shape[0] * np.sum(a)
         )
         return score
 

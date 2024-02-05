@@ -281,6 +281,16 @@ class PixelFlipping(Metric[Union[float, List[float]]]):
         list
             The evaluation results.
         """
+        if self.multi_label:
+            results = []
+            for label_index in y:
+                results.append(self._calculate_score(a[label_index], model, x, y))
+        else:
+            results = self._calculate_score(a, model, x, y)
+
+        return results
+
+    def _calculate_score(self, a, model, x, y):
 
         # Reshape attributions.
         a = a.flatten()

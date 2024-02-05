@@ -295,11 +295,11 @@ class Completeness(Metric[List[float]]):
 
         # Predict on input.
         x_input = model.shape_input(x, x.shape, channel_first=True)
-        y_pred = float(model.predict(x_input)[:, y])
+        y_pred = model.predict(x_input)[:, y]
 
         # Predict on baseline.
         x_input = model.shape_input(x_baseline, x.shape, channel_first=True)
-        y_pred_baseline = float(model.predict(x_input)[:, y])
+        y_pred_baseline = model.predict(x_input)[:, y]
 
         if np.sum(a) == self.output_func(y_pred - y_pred_baseline):
             return True

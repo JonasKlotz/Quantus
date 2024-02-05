@@ -265,6 +265,16 @@ class RandomLogit(Metric[List[float]]):
         float
             The evaluation results.
         """
+        if self.multi_label:
+            results = []
+            for label_index in y:
+                results.append(self._calculate_score(a[label_index], model, x, label_index))
+        else:
+            results = self._calculate_score(a, model, x, y)
+
+        return results
+
+    def _calculate_score(self, a, model, x, y):
         # Randomly select off-class labels.
         np.random.seed(self.seed)
         y_off = np.array(
@@ -276,6 +286,12 @@ class RandomLogit(Metric[List[float]]):
         )
         # Explain against a random class.
         a_perturbed = self.explain_batch(model, np.expand_dims(x, axis=0), y_off)
+        # todo: this is not beautiful, but we need to make sure that the similarity function is called with the same number of dimensions
+        if self.multi_label:
+            # select second dimension and cut off the first dimension
+            a_perturbed = a_perturbed[0][y_off][0]
+
+
         return self.similarity_func(a.flatten(), a_perturbed.flatten())
 
     def custom_preprocess(

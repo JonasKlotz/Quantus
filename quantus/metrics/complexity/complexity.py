@@ -228,8 +228,7 @@ class Complexity(Metric[List[float]]):
             **kwargs,
         )
 
-    @staticmethod
-    def evaluate_instance(x: np.ndarray, a: np.ndarray) -> float:
+    def evaluate_instance(self, x: np.ndarray, a: np.ndarray) -> float:
         """
         Evaluate instance gets model and data for a single instance as input and returns the evaluation result.
 
@@ -245,12 +244,20 @@ class Complexity(Metric[List[float]]):
         float
             The evaluation results.
         """
+        if self.multi_label:
+            scores = []
+            for attribution in a:
+                if np.any(attribution):
+                    scores.append(self._calculate_score(attribution, x))
+            return scores
 
+        return self._calculate_score(a, x)
+
+    def _calculate_score(self, a, x):
         if len(x.shape) == 1:
             newshape = np.prod(x.shape)
         else:
             newshape = np.prod(x.shape[1:])
-
         a = np.array(np.reshape(a, newshape), dtype=np.float64) / np.sum(np.abs(a))
         return scipy.stats.entropy(pk=a)
 

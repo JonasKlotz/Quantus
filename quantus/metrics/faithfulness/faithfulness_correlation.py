@@ -82,7 +82,9 @@ class FaithfulnessCorrelation(Metric[List[float]]):
         default_plot_func: Optional[Callable] = None,
         disable_warnings: bool = False,
         display_progressbar: bool = False,
-        **kwargs,
+        multi_label: Optional[bool] = False,
+
+            **kwargs,
     ):
         """
         Parameters
@@ -134,6 +136,7 @@ class FaithfulnessCorrelation(Metric[List[float]]):
             default_plot_func=default_plot_func,
             display_progressbar=display_progressbar,
             disable_warnings=disable_warnings,
+            multi_label=multi_label,
             **kwargs,
         )
 

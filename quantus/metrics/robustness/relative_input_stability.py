@@ -271,7 +271,16 @@ class RelativeInputStability(Metric[List[float]]):
         denominator = norm_function(denominator)
         # fmt: on
         denominator += (denominator == 0) * self._eps_min
-        return nominator / denominator
+
+        if self.multi_label:
+            # we need to expand the denominator to the same shape as the nominator
+            denominator = np.expand_dims(denominator, axis=-1)
+            result =  nominator / denominator
+            # sum over the labels
+            result = np.sum(result, axis=-1)
+        else:
+            result = nominator / denominator
+        return result
 
     def evaluate_batch(
         self,
