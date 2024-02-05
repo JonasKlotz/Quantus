@@ -360,6 +360,7 @@ def get_wrapped_model(
     softmax: bool,
     device: Optional[str] = None,
     model_predict_kwargs: Optional[Dict[str, Any]] = None,
+    multi_label: Optional[bool] = False,
 ) -> ModelInterface:
     """
     Identifies the type of a model object and wraps the model in an appropriate interface.
@@ -398,6 +399,7 @@ def get_wrapped_model(
                 softmax=softmax,
                 device=device,
                 model_predict_kwargs=model_predict_kwargs,
+                multi_label=multi_label,
             )
     raise ValueError("Model needs to be tf.keras.Model or torch.nn.Module.")
 

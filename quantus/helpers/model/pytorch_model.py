@@ -51,6 +51,7 @@ class PyTorchModel(ModelInterface[nn.Module]):
         softmax: bool = False,
         model_predict_kwargs: Optional[Dict[str, Any]] = None,
         device: Optional[str] = None,
+        multi_label: bool = False,
     ):
         """
         Initialisation of PyTorchModel class.
@@ -74,6 +75,7 @@ class PyTorchModel(ModelInterface[nn.Module]):
             model=model,
             channel_first=channel_first,
             softmax=softmax,
+            multi_label=multi_label,
             model_predict_kwargs=model_predict_kwargs,
         )
         self.device = device
@@ -235,10 +237,20 @@ class PyTorchModel(ModelInterface[nn.Module]):
         grad_context = torch.no_grad() if not grad else suppress()
 
         with grad_context:
-            pred = self._obtain_predictions(x, model_predict_kwargs)
-            if pred.requires_grad:
-                return pred.detach().cpu().numpy()
-            return pred.cpu().numpy()
+            # todo improve
+            if not self.multi_label:
+                pred = self._obtain_predictions(x, model_predict_kwargs)
+                if pred.requires_grad:
+                    return pred.detach().cpu().numpy()
+                return pred.cpu().numpy()
+            else:
+                # here we have to do the exact same as in get_softmax_arg_model for sigmoid
+                pred = self.model(torch.Tensor(x).to(self.device), **model_predict_kwargs)
+                pred = torch.sigmoid(pred)
+
+                if pred.requires_grad:
+                    return pred.detach().cpu().numpy()
+                return pred.cpu().numpy()
 
     def shape_input(
         self,

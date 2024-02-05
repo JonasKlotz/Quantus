@@ -29,6 +29,7 @@ class ModelInterface(ABC, Generic[M]):
         channel_first: Optional[bool] = True,
         softmax: bool = False,
         model_predict_kwargs: Optional[Dict[str, Any]] = None,
+        multi_label: bool = False,
     ):
         """
         Initialisation of ModelInterface class.
@@ -48,6 +49,7 @@ class ModelInterface(ABC, Generic[M]):
         self.model = model
         self.channel_first = channel_first
         self.softmax = softmax
+        self.multi_label = multi_label
 
         if model_predict_kwargs is None:
             self.model_predict_kwargs = {}
