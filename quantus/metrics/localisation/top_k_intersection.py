@@ -242,6 +242,7 @@ class TopKIntersection(Metric[List[float]]):
         self,
         a: np.ndarray,
         s: np.ndarray,
+        y: Optional[np.ndarray] = None,
     ):
         """
         Evaluate instance gets model and data for a single instance as input and returns the evaluation result.
@@ -258,6 +259,16 @@ class TopKIntersection(Metric[List[float]]):
         float
             The evaluation results.
         """
+        if self.multi_label:
+            results = []
+            for label_index in y:
+                results.append(self._calculate_score(a[label_index], s[label_index]))
+        else:
+            results = self._calculate_score(a, s)
+
+        return results
+
+    def _calculate_score(self, a, s):
 
         if np.sum(s) == 0:
             warn.warn_empty_segmentation()
@@ -301,13 +312,19 @@ class TopKIntersection(Metric[List[float]]):
         None
         """
         # Asserts.
-        asserts.assert_segmentations(x_batch=x_batch, s_batch=s_batch)
+        if not self.multi_label:
+            asserts.assert_segmentations(x_batch=x_batch, s_batch=s_batch)
+        # else:
+        #     asserts.assert_mlc_segmentations(x_batch=x_batch, s_batch=s_batch)
         asserts.assert_value_smaller_than_input_size(
             x=x_batch, value=self.k, value_name="k"
         )
 
     def evaluate_batch(
-        self, a_batch: np.ndarray, s_batch: np.ndarray, **kwargs
+        self, a_batch: np.ndarray,
+            s_batch: np.ndarray,
+            y_batch: Optional[np.ndarray] = None,
+            **kwargs
     ) -> List[float]:
         """
         This method performs XAI evaluation on a single batch of explanations.
@@ -327,4 +344,7 @@ class TopKIntersection(Metric[List[float]]):
         scores_batch:
             Evaluation result for batch.
         """
-        return [self.evaluate_instance(a, s) for a, s in zip(a_batch, s_batch)]
+        if self.multi_label:
+            return [self.evaluate_instance(a=a, s=s, y=y) for a, s, y in zip(a_batch, s_batch, y_batch)]
+
+        return [self.evaluate_instance(a=a, s=s) for a, s in zip(a_batch, s_batch)]

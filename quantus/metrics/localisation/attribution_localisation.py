@@ -250,6 +250,7 @@ class AttributionLocalisation(Metric[List[float]]):
         x: np.ndarray,
         a: np.ndarray,
         s: np.ndarray,
+        y: np.ndarray=None,
     ) -> float:
         """
         Evaluate instance gets model and data for a single instance as input and returns the evaluation result.
@@ -268,6 +269,16 @@ class AttributionLocalisation(Metric[List[float]]):
         float
             The evaluation results.
         """
+        if self.multi_label:
+            results = []
+            for label_index in y:
+                results.append(self._calculate_score(x, a[label_index], s[label_index]))
+        else:
+            results = self._calculate_score(x, a, s)
+
+        return results
+
+    def _calculate_score(self,x, a, s):
 
         if np.sum(s) == 0:
             warn.warn_empty_segmentation()
@@ -321,13 +332,17 @@ class AttributionLocalisation(Metric[List[float]]):
         None
         """
         # Asserts.
-        asserts.assert_segmentations(x_batch=x_batch, s_batch=s_batch)
+        if not self.multi_label:
+            asserts.assert_segmentations(x_batch=x_batch, s_batch=s_batch)
+        # else:
+        #     asserts.assert_mlc_segmentations(x_batch=x_batch, s_batch=s_batch)
 
     def evaluate_batch(
         self,
         x_batch: np.ndarray,
         a_batch: np.ndarray,
         s_batch: np.ndarray,
+        y_batch: Optional[np.ndarray]=None,
         **kwargs,
     ) -> List[float]:
         """
@@ -336,12 +351,15 @@ class AttributionLocalisation(Metric[List[float]]):
 
         Parameters
         ----------
+
         x_batch: np.ndarray
             A np.ndarray which contains the input data that are explained.
         a_batch: np.ndarray
             A np.ndarray which contains pre-computed attributions i.e., explanations.
         s_batch: np.ndarray
             A np.ndarray which contains segmentation masks that matches the input.
+        y_batch: np.ndarray, optional
+            A np.ndarray which contains the output labels that are explained. Used for multi-label evaluation.
         kwargs:
             Unused.
 
@@ -350,6 +368,12 @@ class AttributionLocalisation(Metric[List[float]]):
         scores_batch:
             Evaluation result for batch.
         """
+        if self.multi_label:
+            return [
+                self.evaluate_instance(x=x, a=a, s=s, y=y)
+                for x, a, s, y in zip(x_batch, a_batch, s_batch, y_batch)
+            ]
+
         return [
             self.evaluate_instance(x=x, a=a, s=s)
             for x, a, s in zip(x_batch, a_batch, s_batch)

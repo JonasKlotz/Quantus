@@ -227,10 +227,11 @@ class RelevanceMassAccuracy(Metric[List[float]]):
             **kwargs,
         )
 
-    @staticmethod
     def evaluate_instance(
+        self,
         a: np.ndarray,
         s: np.ndarray,
+        y: Optional[np.ndarray] = None,
     ) -> float:
         """
         Evaluate instance gets model and data for a single instance as input and returns the evaluation result.
@@ -241,12 +242,24 @@ class RelevanceMassAccuracy(Metric[List[float]]):
             The explanation to be evaluated on an instance-basis.
         s: np.ndarray
             The segmentation to be evaluated on an instance-basis.
+        y: np.ndarray, optional
+            The ground truth label for the instance. Only used in multi-label setting.
 
         Returns
         -------
         float
             The evaluation results.
         """
+        if self.multi_label:
+            results = []
+            for label_index in y:
+                results.append(self._calculate_score(a[label_index], s[label_index]))
+        else:
+            results = self._calculate_score(a, s)
+
+        return results
+
+    def _calculate_score(self, a, s):
         # Return np.nan as result if segmentation map is empty.
         if np.sum(s) == 0:
             warn.warn_empty_segmentation()
@@ -261,6 +274,7 @@ class RelevanceMassAccuracy(Metric[List[float]]):
         r_total = np.sum(a)
 
         # Calculate mass accuracy.
+        print(r_within, r_total)
         mass_accuracy = r_within / r_total
 
         return mass_accuracy
@@ -287,10 +301,14 @@ class RelevanceMassAccuracy(Metric[List[float]]):
         None
         """
         # Asserts.
-        asserts.assert_segmentations(x_batch=x_batch, s_batch=s_batch)
+        # Asserts.
+        if not self.multi_label:
+            asserts.assert_segmentations(x_batch=x_batch, s_batch=s_batch)
+        # else:
+        #     asserts.assert_mlc_segmentations(x_batch=x_batch, s_batch=s_batch)
 
     def evaluate_batch(
-        self, a_batch: np.ndarray, s_batch: np.ndarray, **kwargs
+        self, a_batch: np.ndarray, s_batch: np.ndarray, y_batch:np.ndarray=None, **kwargs
     ) -> List[float]:
         """
         This method performs XAI evaluation on a single batch of explanations.
@@ -310,4 +328,7 @@ class RelevanceMassAccuracy(Metric[List[float]]):
         scores_batch:
             A list of Any with the evaluation scores for the batch.
         """
+        if self.multi_label:
+            return [self.evaluate_instance(a=a, s=s, y=y) for a, s, y in zip(a_batch, s_batch, y_batch)]
+
         return [self.evaluate_instance(a=a, s=s) for a, s in zip(a_batch, s_batch)]

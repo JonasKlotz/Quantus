@@ -52,17 +52,17 @@ class AUC(Metric[List[float]]):
     evaluation_category = EvaluationCategory.LOCALISATION
 
     def __init__(
-        self,
-        abs: bool = False,
-        normalise: bool = True,
-        normalise_func: Optional[Callable[[np.ndarray], np.ndarray]] = None,
-        normalise_func_kwargs: Optional[Dict[str, Any]] = None,
-        return_aggregate: bool = False,
-        aggregate_func: Optional[Callable] = None,
-        default_plot_func: Optional[Callable] = None,
-        disable_warnings: bool = False,
-        display_progressbar: bool = False,
-        **kwargs,
+            self,
+            abs: bool = False,
+            normalise: bool = True,
+            normalise_func: Optional[Callable[[np.ndarray], np.ndarray]] = None,
+            normalise_func_kwargs: Optional[Dict[str, Any]] = None,
+            return_aggregate: bool = False,
+            aggregate_func: Optional[Callable] = None,
+            default_plot_func: Optional[Callable] = None,
+            disable_warnings: bool = False,
+            display_progressbar: bool = False,
+            **kwargs,
     ):
         """
         Parameters
@@ -117,20 +117,20 @@ class AUC(Metric[List[float]]):
             )
 
     def __call__(
-        self,
-        model,
-        x_batch: np.ndarray,
-        y_batch: np.ndarray,
-        a_batch: Optional[np.ndarray] = None,
-        s_batch: Optional[np.ndarray] = None,
-        channel_first: Optional[bool] = None,
-        explain_func: Optional[Callable] = None,
-        explain_func_kwargs: Optional[Dict] = None,
-        model_predict_kwargs: Optional[Dict] = None,
-        softmax: Optional[bool] = False,
-        device: Optional[str] = None,
-        batch_size: int = 64,
-        **kwargs,
+            self,
+            model,
+            x_batch: np.ndarray,
+            y_batch: np.ndarray,
+            a_batch: Optional[np.ndarray] = None,
+            s_batch: Optional[np.ndarray] = None,
+            channel_first: Optional[bool] = None,
+            explain_func: Optional[Callable] = None,
+            explain_func_kwargs: Optional[Dict] = None,
+            model_predict_kwargs: Optional[Dict] = None,
+            softmax: Optional[bool] = False,
+            device: Optional[str] = None,
+            batch_size: int = 64,
+            **kwargs,
     ) -> List[float]:
         """
             This implementation represents the main logic of the metric and makes the class object callable.
@@ -220,8 +220,11 @@ class AUC(Metric[List[float]]):
             **kwargs,
         )
 
-    @staticmethod
-    def evaluate_instance(a: np.ndarray, s: np.ndarray) -> float:
+    def evaluate_instance(self,
+                          a: np.ndarray,
+                          s: np.ndarray,
+                          y: Optional[np.ndarray] = None
+                          ) -> float:
         """
         Evaluate instance gets model and data for a single instance as input and returns the evaluation result.
 
@@ -231,12 +234,24 @@ class AUC(Metric[List[float]]):
             The explanation to be evaluated on an instance-basis.
         s: np.ndarray
             The segmentation to be evaluated on an instance-basis.
+        y: np.ndarray, optional
+            The output label to be evaluated on an instance-basis. Only used for multi-label classification.
 
         Returns
         -------
         : float
          The evaluation results.
         """
+        if self.multi_label:
+            results = []
+            for label_index in y:
+                results.append(self._calculate_score(a[label_index], s[label_index]))
+        else:
+            results = self._calculate_score(a, s)
+
+        return results
+
+    def _calculate_score(self, a, s):
         # Return np.nan as result if segmentation map is empty.
         if np.sum(s) == 0:
             warn.warn_empty_segmentation()
@@ -252,10 +267,10 @@ class AUC(Metric[List[float]]):
         return score
 
     def custom_preprocess(
-        self,
-        x_batch: np.ndarray,
-        s_batch: np.ndarray,
-        **kwargs,
+            self,
+            x_batch: np.ndarray,
+            s_batch: np.ndarray,
+            **kwargs,
     ) -> None:
         """
         Implementation of custom_preprocess_batch.
@@ -274,10 +289,13 @@ class AUC(Metric[List[float]]):
         None
         """
         # Asserts.
-        asserts.assert_segmentations(x_batch=x_batch, s_batch=s_batch)
+        if not self.multi_label:
+            asserts.assert_segmentations(x_batch=x_batch, s_batch=s_batch)
+        # else:
+        #     asserts.assert_mlc_segmentations(x_batch=x_batch, s_batch=s_batch)
 
     def evaluate_batch(
-        self, a_batch: np.ndarray, s_batch: np.ndarray, **kwargs
+            self, a_batch: np.ndarray, s_batch: np.ndarray, y_batch:Optional[np.ndarray]=None, **kwargs
     ) -> List[float]:
         """
         This method performs XAI evaluation on a single batch of explanations.
@@ -289,6 +307,8 @@ class AUC(Metric[List[float]]):
             A np.ndarray which contains pre-computed attributions i.e., explanations.
         s_batch:
             A np.ndarray which contains segmentation masks that matches the input.
+        y_batch:
+            A np.ndarray which contains the output labels that are explained. Only used for multi-label classification.
         kwargs:
             Unused.
 
@@ -297,4 +317,7 @@ class AUC(Metric[List[float]]):
         scores_batch:
             Evaluation result for batch.
         """
+        if self.multi_label:
+            return [self.evaluate_instance(a=a, s=s, y=y) for a, s, y in zip(a_batch, s_batch, y_batch)]
+
         return [self.evaluate_instance(a=a, s=s) for a, s in zip(a_batch, s_batch)]
