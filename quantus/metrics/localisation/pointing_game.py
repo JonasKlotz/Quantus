@@ -237,7 +237,7 @@ class PointingGame(Metric[List[float]]):
         self,
         a: np.ndarray,
         s: np.ndarray,
-        y: np.ndarray,
+        y: np.ndarray=None,
     ) -> float:
         """
         Evaluate instance gets model and data for a single instance as input and returns the evaluation result.

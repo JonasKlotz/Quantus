@@ -274,7 +274,6 @@ class RelevanceMassAccuracy(Metric[List[float]]):
         r_total = np.sum(a)
 
         # Calculate mass accuracy.
-        print(r_within, r_total)
         mass_accuracy = r_within / r_total
 
         return mass_accuracy
