@@ -312,7 +312,7 @@ class Infidelity(Metric[List[float]]):
         if self.multi_label:
             results = []
             for label_index in y:
-                results.append(self._calculate_score(a[label_index], model, x, y))
+                results.append(self._calculate_score(a[label_index], model, x, label_index))
         else:
             results = self._calculate_score(a, model, x, y)
 
@@ -373,8 +373,8 @@ class Infidelity(Metric[List[float]]):
                         a_diff = np.dot(
                             np.repeat(a, repeats=self.nr_channels, axis=0), x_diff
                         )
-                        # todo: here we have a shape mismatch, i guess using sum is fine
-                        pred_deltas[i_x][i_y] = np.sum(y_pred - y_pred_perturb)
+
+                        pred_deltas[i_x][i_y] = (y_pred - y_pred_perturb).squeeze()
                         a_sums[i_x][i_y] = np.sum(a_diff)
 
                 assert callable(self.loss_func)

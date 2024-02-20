@@ -10,6 +10,8 @@ import sys
 from typing import Any, Callable, Dict, List, Optional
 
 import numpy as np
+import torch
+
 from quantus.functions import norm_func
 from quantus.functions.perturb_func import perturb_batch, uniform_noise
 from quantus.functions.similarity_func import difference
@@ -323,6 +325,19 @@ class MaxSensitivity(Metric[List[float]]):
         scores_batch: np.ndarray
             The batched evaluation results.
         """
+        if self.multi_label:
+            results = []
+            # todo: this only works for batchsize 1
+            for label_index in y_batch[0]:
+                tmp_label = torch.tensor(label_index).unsqueeze(dim=0)
+                results.append(self._calculate_score(model, x_batch, tmp_label, a_batch[:, label_index]))
+            results  = [results]
+        else:
+            results = self._calculate_score(model, x_batch, y_batch, a_batch)
+
+        return results
+
+    def _calculate_score(self, model, x_batch, y_batch, a_batch):
         batch_size = x_batch.shape[0]
         similarities = np.zeros((batch_size, self.nr_samples)) * np.nan
 
@@ -347,6 +362,8 @@ class MaxSensitivity(Metric[List[float]]):
 
             # Generate explanation based on perturbed input x.
             a_perturbed = self.explain_batch(model, x_perturbed, y_batch)
+            if self.multi_label:
+                a_perturbed = a_perturbed[:, y_batch[0]]
 
             # Measure similarity for each instance separately.
             for instance_id in range(batch_size):

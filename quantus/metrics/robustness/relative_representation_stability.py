@@ -326,7 +326,10 @@ class RelativeRepresentationStability(Metric[List[float]]):
         )
 
         # Prepare output array.
-        rrs_batch = np.zeros(shape=[self._nr_samples, x_batch.shape[0]])
+        if self.multi_label:
+            rrs_batch = np.zeros(shape=[self._nr_samples, a_batch.shape[0], a_batch.shape[1],])
+        else:
+            rrs_batch = np.zeros(shape=[self._nr_samples, x_batch.shape[0]])
 
         for index in range(self._nr_samples):
             # Perturb input.
@@ -363,6 +366,15 @@ class RelativeRepresentationStability(Metric[List[float]]):
 
         # Compute RRS.
         result = np.max(rrs_batch, axis=0)
+
+        if self.multi_label:
+            result_list = []
+            for index, label_list in enumerate(y_batch):
+                tmp_list = []
+                for label in label_list:
+                    tmp_list.append(result[index, label])
+                result_list.append(tmp_list)
+            result = result_list
         if self.return_aggregate:
             result = [self.aggregate_func(result)]
 

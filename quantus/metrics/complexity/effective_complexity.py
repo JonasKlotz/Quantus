@@ -231,7 +231,7 @@ class EffectiveComplexity(Metric[List[float]]):
             **kwargs,
         )
 
-    def evaluate_instance(self, a: np.ndarray) -> int:
+    def evaluate_instance(self, a: np.ndarray, y=None) -> int:
         """
         Evaluate instance gets model and data for a single instance as input and returns the evaluation result.
 
@@ -245,11 +245,18 @@ class EffectiveComplexity(Metric[List[float]]):
         integer
             The evaluation results.
         """
+        if self.multi_label:
+            results = []
+            for label in y:
+                tmp_a = a[label].flatten()
+                tmp_res =  int(np.sum(tmp_a > self.eps))
+                results.append(tmp_res)
+            return results
 
         a = a.flatten()
         return int(np.sum(a > self.eps))
 
-    def evaluate_batch(self, a_batch: np.ndarray, **kwargs) -> List[int]:
+    def evaluate_batch(self, a_batch: np.ndarray, y_batch=None, **kwargs) -> List[int]:
         """
         This method performs XAI evaluation on a single batch of explanations.
         For more information on the specific logic, we refer the metric’s initialisation docstring.
@@ -266,4 +273,6 @@ class EffectiveComplexity(Metric[List[float]]):
         scores_batch:
             The evaluation results.
         """
+        if self.multi_label:
+            return [self.evaluate_instance(a, y) for a,y in zip(a_batch,y_batch)]
         return [self.evaluate_instance(a) for a in a_batch]

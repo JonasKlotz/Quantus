@@ -312,7 +312,7 @@ class RegionPerturbation(Metric[List[float]]):
         if self.multi_label:
             results = []
             for label_index  in y:
-                results.append(self._calculate_score(a[label_index], model, x, y))
+                results.append(self._calculate_score(a[label_index], model, x, label_index))
         else:
             results = self._calculate_score(a, model, x, y)
 
@@ -320,7 +320,7 @@ class RegionPerturbation(Metric[List[float]]):
 
     def _calculate_score(self, a, model, x, y):
         x_input = model.shape_input(x, x.shape, channel_first=True)
-        preds =model.predict(x_input)
+        preds = model.predict(x_input)
         y_pred = preds[:, y]
 
         patches = []
@@ -415,13 +415,21 @@ class RegionPerturbation(Metric[List[float]]):
 
             # outputs the probability of the class y
             y_pred_perturb = model.predict(x_input)[:, y]
+            #  y_pred and y_pred_perturb are lists this bugs the AUC calculation
+            results[patch_id] = (y_pred - y_pred_perturb)
 
-            results[patch_id] = y_pred - y_pred_perturb
+            results[patch_id] = results[patch_id].squeeze() # squeeze removes the extra dimension
         return results
 
     @property
     def get_auc_score(self):
         """Calculate the area under the curve (AUC) score for several test samples."""
+        if self.multi_label:
+            results = []
+            for sample in self.evaluation_scores:
+                results.append([utils.calculate_auc(np.array(curve)) for curve in sample])
+            return results
+
         return np.mean(
             [utils.calculate_auc(np.array(curve)) for curve in self.evaluation_scores]
         )

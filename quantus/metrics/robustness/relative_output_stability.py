@@ -288,8 +288,6 @@ class RelativeOutputStability(Metric[List[float]]):
             # we need to expand the denominator to the same shape as the nominator
             denominator = np.expand_dims(denominator, axis=-1)
             result = nominator / denominator
-            # sum over the labels
-            result = np.sum(result, axis=-1)
         else:
             result = nominator / denominator
         return result
@@ -327,7 +325,10 @@ class RelativeOutputStability(Metric[List[float]]):
         logits = model.predict(x_batch)
 
         # Prepare output array.
-        ros_batch = np.zeros(shape=[self._nr_samples, x_batch.shape[0]])
+        if self.multi_label:
+            ros_batch = np.zeros(shape=[self._nr_samples, a_batch.shape[0], a_batch.shape[1],])
+        else:
+            ros_batch = np.zeros(shape=[self._nr_samples, x_batch.shape[0]])
 
         for index in range(self._nr_samples):
             # Perturb input.
@@ -359,6 +360,16 @@ class RelativeOutputStability(Metric[List[float]]):
 
         # Compute ROS.
         result = np.max(ros_batch, axis=0)
+
+        if self.multi_label:
+            result_list = []
+            for index, label_list in enumerate(y_batch):
+                tmp_list = []
+                for label in label_list:
+                    tmp_list.append(result[index, label])
+                result_list.append(tmp_list)
+            result = result_list
+
         if self.return_aggregate:
             result = [self.aggregate_func(result)]
 

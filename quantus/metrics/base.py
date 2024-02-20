@@ -448,16 +448,16 @@ class Metric(Generic[R]):
             self.explain_func_kwargs["device"] = device
 
         if a_batch is not None:
-            # todo: this has to be implemented for MLC
-            if not self.multi_label:
-                a_batch = utils.expand_attribution_channel(a_batch, x_batch)
-                asserts.assert_attributions(x_batch=x_batch, a_batch=a_batch)
-                self.a_axes = utils.infer_attribution_axes(a_batch, x_batch)
-            else:
+            # todo: this has to be implemented for MLC: assert_attributions
+            if self.multi_label:
                 single_label_a_batch = a_batch[:, 0, :, :, :]
                 single_label_a_batch = utils.expand_attribution_channel(single_label_a_batch, x_batch)
                 # we do not need to assert the atributions, (they can be 0 for instance)
                 self.a_axes = utils.infer_attribution_axes(single_label_a_batch, x_batch)
+            else:
+                a_batch = utils.expand_attribution_channel(a_batch, x_batch)
+                asserts.assert_attributions(x_batch=x_batch, a_batch=a_batch)
+                self.a_axes = utils.infer_attribution_axes(a_batch, x_batch)
 
             # Normalise with specified keyword arguments if requested.
             if self.normalise:

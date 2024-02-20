@@ -52,7 +52,7 @@ AVAILABLE_METRICS: Final[Mapping[str, Mapping[str, Type[Metric]]]] = {
         "Top-K Intersection": TopKIntersection,
         "Relevance Mass Accuracy": RelevanceMassAccuracy,
         "Relevance Rank Accuracy": RelevanceRankAccuracy,
-        "Attribution Localisation ": AttributionLocalisation,
+        "Attribution Localisation": AttributionLocalisation,
         "AUC": AUC,
         "Focus": Focus,
     },

@@ -314,6 +314,7 @@ class Continuity(Metric[List[float]]):
             )
             x_input = model.shape_input(x_perturbed, x.shape, channel_first=True)
 
+            # todo: NOT MLC FIT
             prediction_changed = (
                 self.return_nan_when_prediction_changes
                 and model.predict(np.expand_dims(x, 0)).argmax(axis=-1)[0]

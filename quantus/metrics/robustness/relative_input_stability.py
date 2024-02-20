@@ -277,7 +277,7 @@ class RelativeInputStability(Metric[List[float]]):
             denominator = np.expand_dims(denominator, axis=-1)
             result =  nominator / denominator
             # sum over the labels
-            result = np.sum(result, axis=-1)
+            #result = np.sum(result, axis=-1)
         else:
             result = nominator / denominator
         return result
@@ -313,7 +313,10 @@ class RelativeInputStability(Metric[List[float]]):
         batch_size = x_batch.shape[0]
 
         # Prepare output array.
-        ris_batch = np.zeros(shape=[self._nr_samples, x_batch.shape[0]])
+        if self.multi_label:
+            ris_batch = np.zeros(shape=[self._nr_samples, a_batch.shape[0], a_batch.shape[1],])
+        else:
+            ris_batch = np.zeros(shape=[self._nr_samples, x_batch.shape[0]])
 
         for index in range(self._nr_samples):
             # Perturb input.
@@ -343,6 +346,16 @@ class RelativeInputStability(Metric[List[float]]):
 
         # Compute RIS.
         result = np.max(ris_batch, axis=0)
+
+        if self.multi_label:
+            result_list = []
+            for index, label_list in enumerate(y_batch):
+                tmp_list = []
+                for label in label_list:
+                    tmp_list.append(result[index, label])
+                result_list.append(tmp_list)
+            result = result_list
+
         if self.return_aggregate:
             result = [self.aggregate_func(result)]
 
