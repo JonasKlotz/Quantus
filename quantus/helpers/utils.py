@@ -787,7 +787,6 @@ def infer_attribution_axes(a_batch: np.ndarray, x_batch: np.ndarray) -> Sequence
         for start in range(0, len(x_shape) - len(a_shape) + 1)
     ]
     if x_subshapes.count(a_shape) < 1:
-
         # Check that attribution dimensions are (consecutive) subdimensions of inputs
         raise ValueError(
             "Attribution dimensions are not (consecutive) subdimensions of inputs:  "
@@ -796,7 +795,6 @@ def infer_attribution_axes(a_batch: np.ndarray, x_batch: np.ndarray) -> Sequence
             )
         )
     elif x_subshapes.count(a_shape) > 1:
-
         # Check that attribution dimensions are (unique) subdimensions of inputs.
         # Consider potentially expanded dims in attributions.
 
@@ -806,7 +804,6 @@ def infer_attribution_axes(a_batch: np.ndarray, x_batch: np.ndarray) -> Sequence
                 for start in range(0, len(np.shape(a_batch)[1:]) - len(a_shape) + 1)
             ]
             if a_subshapes.count(a_shape) == 1:
-
                 # Inferring channel shape.
                 for dim in range(len(np.shape(a_batch)[1:]) + 1):
                     if a_shape == np.shape(a_batch)[1:][dim:]:

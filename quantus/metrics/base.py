@@ -80,18 +80,18 @@ class Metric(Generic[R]):
     normalise_func: Optional[Callable[[np.ndarray], np.ndarray]]
 
     def __init__(
-            self,
-            abs: bool,
-            normalise: bool,
-            normalise_func: Optional[Callable],
-            normalise_func_kwargs: Optional[Dict[str, Any]],
-            return_aggregate: bool,
-            aggregate_func: Callable,
-            default_plot_func: Optional[Callable],
-            disable_warnings: bool,
-            display_progressbar: bool,
-            multi_label: Optional[bool] = False,
-            **kwargs,
+        self,
+        abs: bool,
+        normalise: bool,
+        normalise_func: Optional[Callable],
+        normalise_func_kwargs: Optional[Dict[str, Any]],
+        return_aggregate: bool,
+        aggregate_func: Callable,
+        default_plot_func: Optional[Callable],
+        disable_warnings: bool,
+        display_progressbar: bool,
+        multi_label: Optional[bool] = False,
+        **kwargs,
     ):
         """
         Initialise the Metric base class.
@@ -167,22 +167,22 @@ class Metric(Generic[R]):
 
     @no_type_check
     def __call__(
-            self,
-            model: Union[keras.Model, nn.Module, None],
-            x_batch: np.ndarray,
-            y_batch: np.ndarray,
-            a_batch: Optional[np.ndarray],
-            s_batch: Optional[np.ndarray],
-            channel_first: Optional[bool],
-            explain_func: Optional[Callable],
-            explain_func_kwargs: Optional[Dict],
-            model_predict_kwargs: Optional[Dict],
-            softmax: Optional[bool],
-            device: Optional[str] = None,
-            batch_size: int = 64,
-            custom_batch: Any = None,
-            multi_label: Optional[bool] = False,
-            **kwargs,
+        self,
+        model: Union[keras.Model, nn.Module, None],
+        x_batch: np.ndarray,
+        y_batch: np.ndarray,
+        a_batch: Optional[np.ndarray],
+        s_batch: Optional[np.ndarray],
+        channel_first: Optional[bool],
+        explain_func: Optional[Callable],
+        explain_func_kwargs: Optional[Dict],
+        model_predict_kwargs: Optional[Dict],
+        softmax: Optional[bool],
+        device: Optional[str] = None,
+        batch_size: int = 64,
+        custom_batch: Any = None,
+        multi_label: Optional[bool] = False,
+        **kwargs,
     ) -> R:
         """
         This implementation represents the main logic of the metric and makes the class object callable.
@@ -451,9 +451,13 @@ class Metric(Generic[R]):
             # todo: this has to be implemented for MLC: assert_attributions
             if self.multi_label:
                 single_label_a_batch = a_batch[:, 0, :, :, :]
-                single_label_a_batch = utils.expand_attribution_channel(single_label_a_batch, x_batch)
-                # we do not need to assert the atributions, (they can be 0 for instance)
-                self.a_axes = utils.infer_attribution_axes(single_label_a_batch, x_batch)
+                single_label_a_batch = utils.expand_attribution_channel(
+                    single_label_a_batch, x_batch
+                )
+                # we do not need to assert the attributions, (they can be 0 for instance)
+                self.a_axes = utils.infer_attribution_axes(
+                    single_label_a_batch, x_batch
+                )
             else:
                 a_batch = utils.expand_attribution_channel(a_batch, x_batch)
                 asserts.assert_attributions(x_batch=x_batch, a_batch=a_batch)
@@ -852,7 +856,7 @@ class Metric(Generic[R]):
             if not self.multi_label:
                 self.a_axes = utils.infer_attribution_axes(a_batch, x_batch)
             else:
-                self.a_axes = [-1, -2] # todo????
+                self.a_axes = [-1, -2]  # todo????
 
         custom_batch = self.custom_batch_preprocess(**data_batch)
         if custom_batch is not None:

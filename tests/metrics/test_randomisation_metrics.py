@@ -390,9 +390,7 @@ def test_model_parameter_randomisation(
             out_of_range_scores = [
                 s for s in scores_layer if not (expected["min"] <= s <= expected["max"])
             ]
-            assert (
-                not out_of_range_scores
-            ), f"Test failed for layer {layer}. Out of range scores: {out_of_range_scores}"
+            assert not out_of_range_scores, f"Test failed for layer {layer}. Out of range scores: {out_of_range_scores}"
     elif isinstance(scores, list):
         out_of_range_scores = [
             s for s in scores if not (expected["min"] <= s <= expected["max"])
@@ -851,9 +849,7 @@ def test_smooth_model_parameter_randomisation(
             out_of_range_scores = [
                 s for s in scores_layer if not (expected["min"] <= s <= expected["max"])
             ]
-            assert (
-                not out_of_range_scores
-            ), f"Test failed for layer {layer}. Out of range scores: {out_of_range_scores}"
+            assert not out_of_range_scores, f"Test failed for layer {layer}. Out of range scores: {out_of_range_scores}"
     elif isinstance(scores, list):
         out_of_range_scores = [
             s for s in scores if not (expected["min"] <= s <= expected["max"])

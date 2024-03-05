@@ -83,8 +83,7 @@ class FaithfulnessCorrelation(Metric[List[float]]):
         disable_warnings: bool = False,
         display_progressbar: bool = False,
         multi_label: Optional[bool] = False,
-
-            **kwargs,
+        **kwargs,
     ):
         """
         Parameters

@@ -410,7 +410,9 @@ class EfficientMPRT(Metric):
                 for a_batch, a_batch_perturbed in zip(
                     self.generate_a_batches(a_full_dataset), a_perturbed_generator
                 ):
-                    for a_instance, a_instance_perturbed in zip(a_batch, a_batch_perturbed):
+                    for a_instance, a_instance_perturbed in zip(
+                        a_batch, a_batch_perturbed
+                    ):
                         score = self.evaluate_instance(
                             model=random_layer_model,
                             x=None,
@@ -612,7 +614,6 @@ class EfficientMPRT(Metric):
     def recompute_model_explanation_correlation_per_sample(
         self,
     ) -> List[Union[float, Any]]:
-
         assert isinstance(self.explanation_scores_by_layer, dict), (
             "To compute the correlation between model and explanation per sample for "
             "enhanced Model Parameter Randomisation Test, 'explanation_scores' "
@@ -648,7 +649,6 @@ class EfficientMPRT(Metric):
     def recompute_average_complexity_per_sample(
         self,
     ) -> List[float]:
-
         assert isinstance(self.explanation_scores_by_layer, dict), (
             "To compute the average correlation coefficient per sample for "
             "enhanced Model Parameter Randomisation Test, 'explanation_scores' "
@@ -677,7 +677,6 @@ class EfficientMPRT(Metric):
     def recompute_last_correlation_per_sample(
         self,
     ) -> List[float]:
-
         assert isinstance(self.explanation_scores_by_layer, dict), (
             "To compute the last correlation coefficient per sample for "
             "Model Parameter Randomisation Test, 'explanation_scores' "

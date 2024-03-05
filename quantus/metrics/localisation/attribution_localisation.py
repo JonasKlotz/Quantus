@@ -250,7 +250,7 @@ class AttributionLocalisation(Metric[List[float]]):
         x: np.ndarray,
         a: np.ndarray,
         s: np.ndarray,
-        y: np.ndarray=None,
+        y: np.ndarray = None,
     ) -> float:
         """
         Evaluate instance gets model and data for a single instance as input and returns the evaluation result.
@@ -278,8 +278,7 @@ class AttributionLocalisation(Metric[List[float]]):
 
         return results
 
-    def _calculate_score(self,x, a, s):
-
+    def _calculate_score(self, x, a, s):
         if np.sum(s) == 0:
             warn.warn_empty_segmentation()
             return np.nan
@@ -342,7 +341,7 @@ class AttributionLocalisation(Metric[List[float]]):
         x_batch: np.ndarray,
         a_batch: np.ndarray,
         s_batch: np.ndarray,
-        y_batch: Optional[np.ndarray]=None,
+        y_batch: Optional[np.ndarray] = None,
         **kwargs,
     ) -> List[float]:
         """

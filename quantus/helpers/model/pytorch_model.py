@@ -245,7 +245,9 @@ class PyTorchModel(ModelInterface[nn.Module]):
                 return pred.cpu().numpy()
             else:
                 # here we have to do the exact same as in get_softmax_arg_model for sigmoid
-                pred = self.model(torch.Tensor(x).to(self.device), **model_predict_kwargs)
+                pred = self.model(
+                    torch.Tensor(x).to(self.device), **model_predict_kwargs
+                )
                 pred = torch.sigmoid(pred)
 
                 if pred.requires_grad:

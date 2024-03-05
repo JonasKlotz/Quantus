@@ -517,8 +517,8 @@ def generate_captum_explanation(
     if not isinstance(targets, torch.Tensor):
         targets = torch.as_tensor(targets).to(device)
 
-    assert 0 not in kwargs.get(
-        "reduce_axes", [1]
+    assert (
+        0 not in kwargs.get("reduce_axes", [1])
     ), "Reduction over batch_axis is not available, please do not include axis 0 in 'reduce_axes' kwargs."
     assert len(kwargs.get("reduce_axes", [1])) <= inputs.ndim - 1, (
         "Cannot reduce attributions over more axes than each sample has dimensions, but got "
@@ -785,8 +785,8 @@ def generate_zennit_explanation(
         )
         model = wrapped_model.get_softmax_arg_model()
 
-    assert 0 not in kwargs.get(
-        "reduce_axes", [1]
+    assert (
+        0 not in kwargs.get("reduce_axes", [1])
     ), "Reduction over batch_axis is not available, please do not include axis 0 in 'reduce_axes' kwarg."
     assert len(kwargs.get("reduce_axes", [1])) <= inputs.ndim - 1, (
         "Cannot reduce attributions over more axes than each sample has dimensions, but got "

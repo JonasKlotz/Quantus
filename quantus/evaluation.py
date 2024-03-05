@@ -181,11 +181,9 @@ def evaluate(
         "Make sure that 'xai_methods' is of type: Dict[str, Callable], Dict[str, Dict], Dict[str, np.ndarray]."
 
     for method, value in xai_methods.items():
-
         results[method] = {}
 
         if callable(value):
-
             explain_funcs[method] = value
             explain_func = value
             assert (
@@ -208,9 +206,7 @@ def evaluate(
             asserts.assert_attributions(a_batch=a_batch, x_batch=x_batch)
 
         elif isinstance(value, Dict):
-
             if explain_func_kwargs is not None:
-
                 warnings.warn(
                     "Passed explain_func_kwargs will be ignored when passing type Dict[str, Dict] as xai_methods."
                     "Read the docstring section on xai_methods (part 1) for more information."
@@ -233,7 +229,6 @@ def evaluate(
             a_batch = value
 
         else:
-
             raise TypeError(
                 f"Error: Unsupported xai_methods type for method '{method}'."
             )
@@ -241,12 +236,10 @@ def evaluate(
         if explain_func_kwargs is None:
             explain_func_kwargs = {}
 
-        for (metric, metric_func) in metrics.items():
-
+        for metric, metric_func in metrics.items():
             results[method][metric] = {}
 
-            for (call_kwarg_str, call_kwarg) in call_kwargs.items():
-
+            for call_kwarg_str, call_kwarg in call_kwargs.items():
                 if verbose:
                     print(
                         f"Evaluating {method} explanations on {metric} metric with "
@@ -283,12 +276,11 @@ def evaluate(
     results_ordered: Dict[str, Any] = {}  # type: ignore
 
     if len(call_kwargs) == 1:
-
         # Clean up the results if there is only one call_kwarg.
         for method, value in xai_methods.items():
             results_ordered[method] = {}
-            for (metric, metric_func) in metrics.items():
-                for (call_kwarg_str, call_kwarg) in call_kwargs.items():
+            for metric, metric_func in metrics.items():
+                for call_kwarg_str, call_kwarg in call_kwargs.items():
                     results_ordered[method][metric] = results[method][metric][
                         call_kwarg_str
                     ]

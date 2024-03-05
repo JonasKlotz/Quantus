@@ -327,7 +327,13 @@ class RelativeRepresentationStability(Metric[List[float]]):
 
         # Prepare output array.
         if self.multi_label:
-            rrs_batch = np.zeros(shape=[self._nr_samples, a_batch.shape[0], a_batch.shape[1],])
+            rrs_batch = np.zeros(
+                shape=[
+                    self._nr_samples,
+                    a_batch.shape[0],
+                    a_batch.shape[1],
+                ]
+            )
         else:
             rrs_batch = np.zeros(shape=[self._nr_samples, x_batch.shape[0]])
 

@@ -275,9 +275,9 @@ class RelativeInputStability(Metric[List[float]]):
         if self.multi_label:
             # we need to expand the denominator to the same shape as the nominator
             denominator = np.expand_dims(denominator, axis=-1)
-            result =  nominator / denominator
+            result = nominator / denominator
             # sum over the labels
-            #result = np.sum(result, axis=-1)
+            # result = np.sum(result, axis=-1)
         else:
             result = nominator / denominator
         return result
@@ -314,7 +314,13 @@ class RelativeInputStability(Metric[List[float]]):
 
         # Prepare output array.
         if self.multi_label:
-            ris_batch = np.zeros(shape=[self._nr_samples, a_batch.shape[0], a_batch.shape[1],])
+            ris_batch = np.zeros(
+                shape=[
+                    self._nr_samples,
+                    a_batch.shape[0],
+                    a_batch.shape[1],
+                ]
+            )
         else:
             ris_batch = np.zeros(shape=[self._nr_samples, x_batch.shape[0]])
 

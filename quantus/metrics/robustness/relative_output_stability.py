@@ -326,7 +326,13 @@ class RelativeOutputStability(Metric[List[float]]):
 
         # Prepare output array.
         if self.multi_label:
-            ros_batch = np.zeros(shape=[self._nr_samples, a_batch.shape[0], a_batch.shape[1],])
+            ros_batch = np.zeros(
+                shape=[
+                    self._nr_samples,
+                    a_batch.shape[0],
+                    a_batch.shape[1],
+                ]
+            )
         else:
             ros_batch = np.zeros(shape=[self._nr_samples, x_batch.shape[0]])
 

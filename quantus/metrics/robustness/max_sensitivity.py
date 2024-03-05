@@ -330,8 +330,12 @@ class MaxSensitivity(Metric[List[float]]):
             # todo: this only works for batchsize 1
             for label_index in y_batch[0]:
                 tmp_label = torch.tensor(label_index).unsqueeze(dim=0)
-                results.append(self._calculate_score(model, x_batch, tmp_label, a_batch[:, label_index]))
-            results  = [results]
+                results.append(
+                    self._calculate_score(
+                        model, x_batch, tmp_label, a_batch[:, label_index]
+                    )
+                )
+            results = [results]
         else:
             results = self._calculate_score(model, x_batch, y_batch, a_batch)
 

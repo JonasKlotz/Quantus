@@ -295,7 +295,9 @@ class Selectivity(Metric[List[float]]):
         if self.multi_label:
             results = []
             for label_index in y:
-                results.append(self._calculate_score(a[label_index], model, x, label_index))
+                results.append(
+                    self._calculate_score(a[label_index], model, x, label_index)
+                )
         else:
             results = self._calculate_score(a, model, x, y)
 
@@ -369,8 +371,10 @@ class Selectivity(Metric[List[float]]):
             x_input = model.shape_input(x_perturbed, x.shape, channel_first=True)
             y_pred_perturb = model.predict(x_input)[:, y]
 
-            results[patch_id] = y_pred - y_pred_perturb
-            results[patch_id] = results[patch_id].squeeze()  # squeeze removes the extra dimension
+            results[patch_id] = y_pred_perturb
+            results[patch_id] = results[
+                patch_id
+            ].squeeze()  # squeeze removes the extra dimension
         return results
 
     @property
@@ -379,7 +383,9 @@ class Selectivity(Metric[List[float]]):
         if self.multi_label:
             results = []
             for sample in self.evaluation_scores:
-                results.append([utils.calculate_auc(np.array(curve)) for curve in sample])
+                results.append(
+                    [utils.calculate_auc(np.array(curve)) for curve in sample]
+                )
             return results
 
         return np.mean(

@@ -291,7 +291,6 @@ class PixelFlipping(Metric[Union[float, List[float]]]):
         return results
 
     def _calculate_score(self, a, model, x, y):
-
         # Reshape attributions.
         a = a.flatten()
 

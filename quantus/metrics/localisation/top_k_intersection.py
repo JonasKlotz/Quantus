@@ -269,7 +269,6 @@ class TopKIntersection(Metric[List[float]]):
         return results
 
     def _calculate_score(self, a, s):
-
         if np.sum(s) == 0:
             warn.warn_empty_segmentation()
             return np.nan
@@ -321,10 +320,11 @@ class TopKIntersection(Metric[List[float]]):
         )
 
     def evaluate_batch(
-        self, a_batch: np.ndarray,
-            s_batch: np.ndarray,
-            y_batch: Optional[np.ndarray] = None,
-            **kwargs
+        self,
+        a_batch: np.ndarray,
+        s_batch: np.ndarray,
+        y_batch: Optional[np.ndarray] = None,
+        **kwargs,
     ) -> List[float]:
         """
         This method performs XAI evaluation on a single batch of explanations.
@@ -345,6 +345,9 @@ class TopKIntersection(Metric[List[float]]):
             Evaluation result for batch.
         """
         if self.multi_label:
-            return [self.evaluate_instance(a=a, s=s, y=y) for a, s, y in zip(a_batch, s_batch, y_batch)]
+            return [
+                self.evaluate_instance(a=a, s=s, y=y)
+                for a, s, y in zip(a_batch, s_batch, y_batch)
+            ]
 
         return [self.evaluate_instance(a=a, s=s) for a, s in zip(a_batch, s_batch)]

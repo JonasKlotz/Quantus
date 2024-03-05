@@ -52,17 +52,17 @@ class AUC(Metric[List[float]]):
     evaluation_category = EvaluationCategory.LOCALISATION
 
     def __init__(
-            self,
-            abs: bool = False,
-            normalise: bool = True,
-            normalise_func: Optional[Callable[[np.ndarray], np.ndarray]] = None,
-            normalise_func_kwargs: Optional[Dict[str, Any]] = None,
-            return_aggregate: bool = False,
-            aggregate_func: Optional[Callable] = None,
-            default_plot_func: Optional[Callable] = None,
-            disable_warnings: bool = False,
-            display_progressbar: bool = False,
-            **kwargs,
+        self,
+        abs: bool = False,
+        normalise: bool = True,
+        normalise_func: Optional[Callable[[np.ndarray], np.ndarray]] = None,
+        normalise_func_kwargs: Optional[Dict[str, Any]] = None,
+        return_aggregate: bool = False,
+        aggregate_func: Optional[Callable] = None,
+        default_plot_func: Optional[Callable] = None,
+        disable_warnings: bool = False,
+        display_progressbar: bool = False,
+        **kwargs,
     ):
         """
         Parameters
@@ -117,20 +117,20 @@ class AUC(Metric[List[float]]):
             )
 
     def __call__(
-            self,
-            model,
-            x_batch: np.ndarray,
-            y_batch: np.ndarray,
-            a_batch: Optional[np.ndarray] = None,
-            s_batch: Optional[np.ndarray] = None,
-            channel_first: Optional[bool] = None,
-            explain_func: Optional[Callable] = None,
-            explain_func_kwargs: Optional[Dict] = None,
-            model_predict_kwargs: Optional[Dict] = None,
-            softmax: Optional[bool] = False,
-            device: Optional[str] = None,
-            batch_size: int = 64,
-            **kwargs,
+        self,
+        model,
+        x_batch: np.ndarray,
+        y_batch: np.ndarray,
+        a_batch: Optional[np.ndarray] = None,
+        s_batch: Optional[np.ndarray] = None,
+        channel_first: Optional[bool] = None,
+        explain_func: Optional[Callable] = None,
+        explain_func_kwargs: Optional[Dict] = None,
+        model_predict_kwargs: Optional[Dict] = None,
+        softmax: Optional[bool] = False,
+        device: Optional[str] = None,
+        batch_size: int = 64,
+        **kwargs,
     ) -> List[float]:
         """
             This implementation represents the main logic of the metric and makes the class object callable.
@@ -220,11 +220,9 @@ class AUC(Metric[List[float]]):
             **kwargs,
         )
 
-    def evaluate_instance(self,
-                          a: np.ndarray,
-                          s: np.ndarray,
-                          y: Optional[np.ndarray] = None
-                          ) -> float:
+    def evaluate_instance(
+        self, a: np.ndarray, s: np.ndarray, y: Optional[np.ndarray] = None
+    ) -> float:
         """
         Evaluate instance gets model and data for a single instance as input and returns the evaluation result.
 
@@ -267,10 +265,10 @@ class AUC(Metric[List[float]]):
         return score
 
     def custom_preprocess(
-            self,
-            x_batch: np.ndarray,
-            s_batch: np.ndarray,
-            **kwargs,
+        self,
+        x_batch: np.ndarray,
+        s_batch: np.ndarray,
+        **kwargs,
     ) -> None:
         """
         Implementation of custom_preprocess_batch.
@@ -295,7 +293,11 @@ class AUC(Metric[List[float]]):
         #     asserts.assert_mlc_segmentations(x_batch=x_batch, s_batch=s_batch)
 
     def evaluate_batch(
-            self, a_batch: np.ndarray, s_batch: np.ndarray, y_batch:Optional[np.ndarray]=None, **kwargs
+        self,
+        a_batch: np.ndarray,
+        s_batch: np.ndarray,
+        y_batch: Optional[np.ndarray] = None,
+        **kwargs,
     ) -> List[float]:
         """
         This method performs XAI evaluation on a single batch of explanations.
@@ -318,6 +320,9 @@ class AUC(Metric[List[float]]):
             Evaluation result for batch.
         """
         if self.multi_label:
-            return [self.evaluate_instance(a=a, s=s, y=y) for a, s, y in zip(a_batch, s_batch, y_batch)]
+            return [
+                self.evaluate_instance(a=a, s=s, y=y)
+                for a, s, y in zip(a_batch, s_batch, y_batch)
+            ]
 
         return [self.evaluate_instance(a=a, s=s) for a, s in zip(a_batch, s_batch)]

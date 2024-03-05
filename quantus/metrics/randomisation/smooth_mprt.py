@@ -169,7 +169,7 @@ class SmoothMPRT(Metric):
 
         if normalise_func_kwargs is None:
             normalise_func_kwargs = {}
-            
+
         self.similarity_func = similarity_func
         self.normalise_func = normalise_func
         self.abs = abs
@@ -354,7 +354,6 @@ class SmoothMPRT(Metric):
                 pbar.desc = layer_name
 
                 if l_ix == 0:
-
                     # Generate explanations on original model in batches.
                     a_original_generator = self.generate_explanations(
                         model.get_model(),
@@ -436,7 +435,6 @@ class SmoothMPRT(Metric):
     def recompute_average_correlation_per_sample(
         self,
     ) -> List[float]:
-
         assert isinstance(self.evaluation_scores, dict), (
             "To compute the average correlation coefficient per sample for "
             "enhanced Model Parameter Randomisation Test, 'evaluation_scores' "
@@ -461,7 +459,6 @@ class SmoothMPRT(Metric):
     def recompute_last_correlation_per_sample(
         self,
     ) -> List[float]:
-
         assert isinstance(self.evaluation_scores, dict), (
             "To compute the last correlation coefficient per sample for "
             "enhanced Model Parameter Randomisation Test, 'evaluation_scores' "

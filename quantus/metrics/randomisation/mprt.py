@@ -334,7 +334,6 @@ class MPRT(Metric):
                 pbar.desc = layer_name
 
                 if l_ix == 0:
-
                     # Generate explanations on original model in batches.
                     a_original_generator = self.generate_explanations(
                         model.get_model(), x_full_dataset, y_full_dataset, batch_size
@@ -410,7 +409,6 @@ class MPRT(Metric):
     def recompute_average_correlation_per_sample(
         self,
     ) -> List[float]:
-
         assert isinstance(self.evaluation_scores, dict), (
             "To compute the average correlation coefficient per sample for "
             "enhanced Model Parameter Randomisation Test, 'evaluation_scores' "
@@ -435,7 +433,6 @@ class MPRT(Metric):
     def recompute_last_correlation_per_sample(
         self,
     ) -> List[float]:
-
         assert isinstance(self.evaluation_scores, dict), (
             "To compute the last correlation coefficient per sample for "
             "enhanced Model Parameter Randomisation Test, 'evaluation_scores' "

@@ -317,7 +317,7 @@ class MonotonicityCorrelation(Metric[List[float]]):
         y_pred = float(model.predict(x_input)[:, y])
 
         inv_pred = 1.0 if np.abs(y_pred) < self.eps else 1.0 / np.abs(y_pred)
-        inv_pred = inv_pred ** 2
+        inv_pred = inv_pred**2
 
         # Reshape attributions.
         a = a.flatten()

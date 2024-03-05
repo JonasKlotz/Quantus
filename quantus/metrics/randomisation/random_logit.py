@@ -268,7 +268,9 @@ class RandomLogit(Metric[List[float]]):
         if self.multi_label:
             results = []
             for label_index in y:
-                results.append(self._calculate_score(a[label_index], model, x, label_index))
+                results.append(
+                    self._calculate_score(a[label_index], model, x, label_index)
+                )
         else:
             results = self._calculate_score(a, model, x, y)
 
@@ -290,7 +292,6 @@ class RandomLogit(Metric[List[float]]):
         if self.multi_label:
             # select second dimension and cut off the first dimension
             a_perturbed = a_perturbed[0][y_off][0]
-
 
         return self.similarity_func(a.flatten(), a_perturbed.flatten())
 

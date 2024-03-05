@@ -316,9 +316,10 @@ class RelevanceRankAccuracy(Metric[List[float]]):
 
     def evaluate_batch(
         self,
-            a_batch: np.ndarray,
-            s_batch: np.ndarray,
-            y_batch:np.ndarray=None, **kwargs
+        a_batch: np.ndarray,
+        s_batch: np.ndarray,
+        y_batch: np.ndarray = None,
+        **kwargs,
     ) -> List[float]:
         """
         This method performs XAI evaluation on a single batch of explanations.
@@ -339,7 +340,9 @@ class RelevanceRankAccuracy(Metric[List[float]]):
             A list of Any with the evaluation scores for the batch.
         """
         if self.multi_label:
-            return [self.evaluate_instance(a=a, s=s, y=y) for a, s, y in zip(a_batch, s_batch, y_batch)]
+            return [
+                self.evaluate_instance(a=a, s=s, y=y)
+                for a, s, y in zip(a_batch, s_batch, y_batch)
+            ]
 
         return [self.evaluate_instance(a=a, s=s) for a, s in zip(a_batch, s_batch)]
-

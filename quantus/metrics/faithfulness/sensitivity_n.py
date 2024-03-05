@@ -310,7 +310,6 @@ class SensitivityN(Metric[List[float]]):
         return results
 
     def _calculate_score(self, a, model, x, y):
-
         # Reshape the attributions.
         a = a.flatten()
 

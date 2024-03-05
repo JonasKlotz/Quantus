@@ -233,7 +233,9 @@ class Sparseness(Metric[List[float]]):
             **kwargs,
         )
 
-    def evaluate_instance(self, x: np.ndarray,a: np.ndarray, y:np.ndarray=None) -> float:
+    def evaluate_instance(
+        self, x: np.ndarray, a: np.ndarray, y: np.ndarray = None
+    ) -> float:
         """
         Evaluate instance gets model and data for a single instance as input and returns the evaluation result.
 
@@ -265,12 +267,12 @@ class Sparseness(Metric[List[float]]):
         a += 0.0000001
         a = np.sort(a)
         score = (np.sum((2 * np.arange(1, a.shape[0] + 1) - a.shape[0] - 1) * a)) / (
-                a.shape[0] * np.sum(a)
+            a.shape[0] * np.sum(a)
         )
         return score
 
     def evaluate_batch(
-        self, x_batch: np.ndarray,y_batch:np.ndarray, a_batch: np.ndarray, **kwargs
+        self, x_batch: np.ndarray, y_batch: np.ndarray, a_batch: np.ndarray, **kwargs
     ) -> List[float]:
         """
         This method performs XAI evaluation on a single batch of explanations.
@@ -290,4 +292,7 @@ class Sparseness(Metric[List[float]]):
         scores_batch:
             The evaluation results.
         """
-        return [self.evaluate_instance(x=x,y=y, a=a) for x, y, a in zip(x_batch,y_batch, a_batch)]
+        return [
+            self.evaluate_instance(x=x, y=y, a=a)
+            for x, y, a in zip(x_batch, y_batch, a_batch)
+        ]

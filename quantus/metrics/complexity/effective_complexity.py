@@ -249,7 +249,7 @@ class EffectiveComplexity(Metric[List[float]]):
             results = []
             for label in y:
                 tmp_a = a[label].flatten()
-                tmp_res =  int(np.sum(tmp_a > self.eps))
+                tmp_res = int(np.sum(tmp_a > self.eps))
                 results.append(tmp_res)
             return results
 
@@ -274,5 +274,5 @@ class EffectiveComplexity(Metric[List[float]]):
             The evaluation results.
         """
         if self.multi_label:
-            return [self.evaluate_instance(a, y) for a,y in zip(a_batch,y_batch)]
+            return [self.evaluate_instance(a, y) for a, y in zip(a_batch, y_batch)]
         return [self.evaluate_instance(a) for a in a_batch]
