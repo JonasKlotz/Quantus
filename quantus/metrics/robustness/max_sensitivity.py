@@ -335,7 +335,6 @@ class MaxSensitivity(Metric[List[float]]):
                         model, x_batch, tmp_label, a_batch[:, label_index]
                     )
                 )
-            results = [results]
         else:
             results = self._calculate_score(model, x_batch, y_batch, a_batch)
 
